@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <getopt.h>
 
 #include <libipset/ipset.h>
 #include <libipset/data.h>
@@ -23,19 +24,6 @@
 #include <pthread.h>
 
 #include "arbiterd.h"
-
-// Arguments passed to each client thread
-struct thread_args {
-    GAsyncQueue *requestQueue;
-    uint16_t port;
-};
-
-// Main thread's record for keeping track of started threads
-struct thread_info {
-    pthread_t   handle;  // As returned by pthread_create()
-    int cpuAffinity;     // What CPU have we set affinity for?
-};
-
 
 void usage(char *progname)
 {
@@ -55,7 +43,6 @@ void usage(char *progname)
         "  -b bind_addr Specify specific IP address to listen on. Can specify '*' wildcard. Default: %s\n\n",
         DEFAULT_BIND_ADDR_STR);
 }
-
 
 void parse_args(int argc, char *argv[], struct cli_args *args)
 {
@@ -93,13 +80,14 @@ void parse_args(int argc, char *argv[], struct cli_args *args)
 
 int main(int argc, char *argv[])
 {
-    struct ipset_session *ipsSession;
+//    struct ipset_session *ipsSession;
     GAsyncQueue *requestQueue;
+    int numCpus = cpu_count();
+    struct thread_info threads[numCpus];
     struct cli_args cliArgs = {
         .port        = DEFAULT_PORT_NUM,
         .bindAddrStr = DEFAULT_BIND_ADDR_STR
     };
-
     parse_args(argc, argv, &cliArgs);
 
     syslog(LOG_INFO, "Will bind to address: %s:%d\n",
@@ -124,7 +112,43 @@ int main(int argc, char *argv[])
     }
 
     syslog(LOG_INFO, "ipset session initialised");
-    syslog(LOG_INFO, "%d CPUs reported as available\n", cpu_count());
+    syslog(LOG_INFO, "%d CPUs reported as available\n", numCpus);
+
+    struct thread_args threadArgs = {
+        .requestQueue = requestQueue,
+        .port = cliArgs.port
+    };
+
+    // Start threads
+    for (int threadIndex = 0; threadIndex < numCpus; threadIndex++) {
+        if (pthread_create(&threads[threadIndex].handle, NULL, &client_main,
+                            (void *)&threadArgs) != 0) {
+            syslog(LOG_ERR, "Failed starting client thread #%02d!\n",
+                    threadIndex);
+            exit(1); // CLEANUP BETTER
+        }
+    }
+
+    // wait for requests
+    struct request *req;
+    char ipsetCmdBuff[2048];
+    while (1) {
+        req = (struct request *)g_async_queue_pop(requestQueue);
+        char *setname;
+
+        if ((setname = malloc(req->setname_length + 1)) == NULL) {
+            fprintf(stderr, "Failed copying setname! Malloc fail\n");
+            continue;
+        }
+        memset(setname, 0x00, req->setname_length + 1);
+        memcpy(setname, req->setname, req->setname_length);
+
+        fprintf(stderr, "Request using setname: %s\n", setname);
+
+        free(setname);
+    }
+ 
+
     ipset_fini(ipsetLib);
 
     return 0;
