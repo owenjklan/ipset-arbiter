@@ -1,6 +1,6 @@
 PROGNAME=arbiterd
 CC=gcc
-CFLAGS=-Wall -O2 -g `pkg-config glib-2.0 --cflags`
+CFLAGS=-Wall -O2 -g `pkg-config glib-2.0 --cflags` --std=c99
 OBJS=arbiterd.o client-thread.o utility.o
 LIBS=-lc -lipset -pthread `pkg-config glib-2.0 --libs`
 
