@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
     struct ipset_session *ipsetSession = NULL;
 
     ipset_load_types();
-    if ((ipsetSession = ipset_session_init(NULL)) == NULL) {
+    if ((ipsetSession = ipset_session(ipsetLib)) == NULL) {
         syslog(LOG_ERR, "Failed initialising ipsets!\n");
         exit(1);        
     }
