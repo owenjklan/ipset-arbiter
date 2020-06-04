@@ -5,7 +5,6 @@ Release: 1%{?dist}
 License: GPL
 BuildArch: x86_64
 Group: Networking Tools
-Author: Owen Klan
 Source: %{name}-%{version}.tar.gz
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot-%(whoami)
 
