@@ -1,0 +1,73 @@
+execve("/usr/sbin/ipset", ["ipset", "list", "testset"], 0x7fff4bffa9a0 /* 16 vars */) = 0
+brk(NULL)                               = 0x1ef9000
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fd735bd1000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=50733, ...}) = 0
+mmap(NULL, 50733, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fd735bc4000
+close(3)                                = 0
+open("/lib64/libipset.so.13", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0@\271\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=186296, ...}) = 0
+mmap(NULL, 2278904, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fd735784000
+mprotect(0x7fd7357a4000, 2093056, PROT_NONE) = 0
+mmap(0x7fd7359a3000, 57344, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1f000) = 0x7fd7359a3000
+close(3)                                = 0
+open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0`&\2\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=2156240, ...}) = 0
+mmap(NULL, 3985920, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fd7353b6000
+mprotect(0x7fd735579000, 2097152, PROT_NONE) = 0
+mmap(0x7fd735779000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1c3000) = 0x7fd735779000
+mmap(0x7fd73577f000, 16896, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fd73577f000
+close(3)                                = 0
+open("/lib64/libmnl.so.0", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0 \34\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=24096, ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fd735bc3000
+mmap(NULL, 2117960, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fd7351b0000
+mprotect(0x7fd7351b4000, 2097152, PROT_NONE) = 0
+mmap(0x7fd7353b4000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x4000) = 0x7fd7353b4000
+close(3)                                = 0
+open("/lib64/libdl.so.2", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0P\16\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=19248, ...}) = 0
+mmap(NULL, 2109744, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fd734fac000
+mprotect(0x7fd734fae000, 2097152, PROT_NONE) = 0
+mmap(0x7fd7351ae000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x2000) = 0x7fd7351ae000
+close(3)                                = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fd735bc2000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fd735bc0000
+arch_prctl(ARCH_SET_FS, 0x7fd735bc0740) = 0
+mprotect(0x7fd735779000, 16384, PROT_READ) = 0
+mprotect(0x7fd7351ae000, 4096, PROT_READ) = 0
+mprotect(0x7fd7353b4000, 4096, PROT_READ) = 0
+mprotect(0x7fd7359a3000, 8192, PROT_READ) = 0
+mprotect(0x600000, 4096, PROT_READ)     = 0
+mprotect(0x7fd735bd2000, 4096, PROT_READ) = 0
+munmap(0x7fd735bc4000, 50733)           = 0
+brk(NULL)                               = 0x1ef9000
+brk(0x1f1a000)                          = 0x1f1a000
+brk(NULL)                               = 0x1f1a000
+socket(AF_NETLINK, SOCK_RAW, NETLINK_NETFILTER) = 3
+bind(3, {sa_family=AF_NETLINK, nl_pid=0, nl_groups=00000000}, 12) = 0
+getsockname(3, {sa_family=AF_NETLINK, nl_pid=17014, nl_groups=00000000}, [12]) = 0
+sendto(3, {{len=28, type=NFNL_SUBSYS_IPSET<<8|IPSET_CMD_PROTOCOL, flags=NLM_F_REQUEST, seq=1591248217, pid=0}, {nfgen_family=AF_INET, version=NFNETLINK_V0, res_id=htons(0), {{nla_len=5, nla_type=NFNETLINK_V1}, "\x07"}}, 28, 0, {sa_family=AF_NETLINK, nl_pid=0, nl_groups=00000000}, 12) = 28
+recvmsg(3, {msg_name={sa_family=AF_NETLINK, nl_pid=0, nl_groups=00000000}, msg_namelen=12, msg_iov=[{iov_base={{len=28, type=NFNL_SUBSYS_IPSET<<8|IPSET_CMD_PROTOCOL, flags=0, seq=1591248217, pid=17014}, {nfgen_family=AF_INET, version=NFNETLINK_V0, res_id=htons(0), {{nla_len=5, nla_type=NFNETLINK_V1}, "\x06"}}, iov_len=256}], msg_iovlen=1, msg_controllen=0, msg_flags=0}, 0) = 28
+sendto(3, {{len=40, type=NFNL_SUBSYS_IPSET<<8|IPSET_CMD_LIST, flags=NLM_F_REQUEST|NLM_F_ACK|0x300, seq=1591248218, pid=0}, {nfgen_family=AF_INET, version=NFNETLINK_V0, res_id=htons(0), [{{nla_len=5, nla_type=NFNETLINK_V1}, "\x06"}, {{nla_len=12, nla_type=0x2}, "\x74\x65\x73\x74\x73\x65\x74\x00"}]}, 40, 0, {sa_family=AF_NETLINK, nl_pid=0, nl_groups=00000000}, 12) = 40
+recvmsg(3, {msg_name={sa_family=AF_NETLINK, nl_pid=0, nl_groups=00000000}, msg_namelen=12, msg_iov=[{iov_base={{len=160, type=NFNL_SUBSYS_IPSET<<8|IPSET_CMD_LIST, flags=NLM_F_MULTI, seq=1591248218, pid=17014}, {nfgen_family=AF_INET, version=NFNETLINK_V0, res_id=htons(0), [{{nla_len=5, nla_type=NFNETLINK_V1}, "\x06"}, {{nla_len=12, nla_type=0x2}, "\x74\x65\x73\x74\x73\x65\x74\x00"}, {{nla_len=13, nla_type=0x3}, "\x68\x61\x73\x68\x3a\x6e\x65\x74\x00"}, {{nla_len=5, nla_type=0x5}, "\x02"}, {{nla_len=5, nla_type=0x4}, "\x03"}, {{nla_len=36, nla_type=NLA_F_NESTED|0x7}, "\x08\x00\x12\x40\x00\x00\x04\x00\x08\x00\x13\x40\x00\x01\x00\x00\x08\x00\x19\x40\x00\x00\x00\x00\x08\x00\x1a\x40\x00\x00\x41\xd0"}, {{nla_len=52, nla_type=NLA_F_NESTED|0x8}, "\x18\x00\x07\x80\x0c\x00\x01\x80\x08\x00\x01\x40\x01\x02\x03\x00\x05\x00\x03\x00\x18\x00\x00\x00\x18\x00\x07\x80\x0c\x00\x01\x80"...}]}, iov_len=4096}], msg_iovlen=1, msg_controllen=0, msg_flags=0}, 0) = 160
+fstat(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 0), ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fd735bd0000
+write(1, "Name: testset\n", 14)         = 14
+write(1, "Type: hash:net\n", 15)        = 15
+write(1, "Revision: 3\n", 12)           = 12
+write(1, "Header: family inet hashsize 102"..., 48) = 48
+write(1, "Size in memory: 16848\n", 22) = 22
+write(1, "References: 0\n", 14)         = 14
+write(1, "Members:\n", 9)               = 9
+write(1, "1.2.3.0/24\n", 11)            = 11
+write(1, "18.122.42.12\n", 13)          = 13
+recvmsg(3, {msg_name={sa_family=AF_NETLINK, nl_pid=0, nl_groups=00000000}, msg_namelen=12, msg_iov=[{iov_base={{len=20, type=NLMSG_DONE, flags=NLM_F_MULTI, seq=1591248218, pid=17014}, 0}, iov_len=4096}], msg_iovlen=1, msg_controllen=0, msg_flags=0}, 0) = 20
+close(3)                                = 0
+exit_group(0)                           = ?
++++ exited with 0 +++

@@ -1,7 +1,7 @@
 PROGNAME=arbiterd
 CC=gcc
-CFLAGS=-Wall -O2 -g `pkg-config glib-2.0 --cflags` --std=c99
-OBJS=arbiterd.o client-thread.o utility.o
+CFLAGS=-Wall -O2 -g `pkg-config glib-2.0 --cflags` --std=c99 -D_GNU_SOURCE -static
+OBJS=arbiterd.o client-thread.o ipset-thread.o utility.o
 LIBS=-lc -lipset -pthread `pkg-config glib-2.0 --libs`
 
 .c.o:

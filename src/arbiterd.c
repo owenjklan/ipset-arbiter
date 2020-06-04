@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -6,6 +7,8 @@
 #include <errno.h>
 #include <syslog.h>
 #include <netinet/in.h>  // For IPPROTO_TCP
+
+// #define _BSD_SOURCE
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -78,12 +81,11 @@ void parse_args(int argc, char *argv[], struct cli_args *args)
     }
 }
 
+
 int main(int argc, char *argv[])
 {
-//    struct ipset_session *ipsSession;
-    GAsyncQueue *requestQueue;
-    int numCpus = cpu_count();
-    struct thread_info threads[numCpus];
+    int numCpus = cpu_count() * 2;
+    struct thread_pair *threads[numCpus];
     struct cli_args cliArgs = {
         .port        = DEFAULT_PORT_NUM,
         .bindAddrStr = DEFAULT_BIND_ADDR_STR
@@ -96,60 +98,23 @@ int main(int argc, char *argv[])
     setlogmask(LOG_UPTO(LOG_INFO));
     openlog(PROG_NAME, LOG_NDELAY|LOG_PID, LOG_USER);
 
-    if ((requestQueue = g_async_queue_new()) == NULL) {
-        syslog(LOG_ERR, "Failed initialising request queue!\n");
-        exit(1);
-    }
-
-    // setup ipset library and session
-    struct ipset *ipsetLib = ipset_init();
-    struct ipset_session *ipsetSession = NULL;
-
     ipset_load_types();
-    if ((ipsetSession = ipset_session(ipsetLib)) == NULL) {
-        syslog(LOG_ERR, "Failed initialising ipsets!\n");
-        exit(1);        
-    }
-
-    syslog(LOG_INFO, "ipset session initialised");
     syslog(LOG_INFO, "%d CPUs reported as available\n", numCpus);
-
-    struct thread_args threadArgs = {
-        .requestQueue = requestQueue,
-        .port = cliArgs.port
-    };
 
     // Start threads
     for (int threadIndex = 0; threadIndex < numCpus; threadIndex++) {
-        if (pthread_create(&threads[threadIndex].handle, NULL, &client_main,
-                            (void *)&threadArgs) != 0) {
-            syslog(LOG_ERR, "Failed starting client thread #%02d!\n",
-                    threadIndex);
-            exit(1); // CLEANUP BETTER
-        }
+        struct thread_pair *pair;
+        pair = create_thread_pair(threadIndex, threadIndex, cliArgs.port,
+            &cliArgs.bindAddr);
+        threads[threadIndex] = pair;
     }
 
-    // wait for requests
-    struct request *req;
-    char ipsetCmdBuff[2048];
-    while (1) {
-        req = (struct request *)g_async_queue_pop(requestQueue);
-        char *setname;
-
-        if ((setname = malloc(req->setname_length + 1)) == NULL) {
-            fprintf(stderr, "Failed copying setname! Malloc fail\n");
-            continue;
-        }
-        memset(setname, 0x00, req->setname_length + 1);
-        memcpy(setname, req->setname, req->setname_length);
-
-        fprintf(stderr, "Request using setname: %s\n", setname);
-
-        free(setname);
+    for (int threadIndex = 0; threadIndex < numCpus; threadIndex++)
+    {
+        struct thread_pair *pair = threads[threadIndex];
+        pthread_join(pair->ipset_thread, NULL);
+        pthread_join(pair->client_thread, NULL);
     }
- 
-
-    ipset_fini(ipsetLib);
 
     return 0;
 }
