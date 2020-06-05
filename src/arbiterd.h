@@ -34,8 +34,9 @@
 
 // For handling command line arguments and their defaults.
 struct cli_args {
-	uint16_t  port;
-	char *bindAddrStr;
+	uint16_t       port;
+	char           *bindAddrStr;
+    uint16_t       enableCpuAffinity;
 	struct in_addr bindAddr;
 };
 
@@ -55,6 +56,7 @@ struct client_thread_args {
     GAsyncQueue *request_queue;
     GAsyncQueue *response_queue;
     uint16_t port;
+    uint16_t enableCpuAffinity;
     struct in_addr *bindAddr;
     int pairNumber;
 };
@@ -64,6 +66,7 @@ struct ipset_thread_args {
     GAsyncQueue *response_queue;
     struct ipset *ipset_handle;
     int pairNumber;
+    uint16_t enableCpuAffinity;
 };
 
 
@@ -86,7 +89,9 @@ struct response {
 extern void set_thread_name(char *prefix, int num);
 extern int cpu_count();
 extern struct thread_pair *create_thread_pair(
-    int number, int cpuAffinity, uint16_t port, struct in_addr *bindAddr);
+    int number, int cpuAffinity,
+    uint16_t port, struct in_addr *bindAddr,
+    uint16_t enableCpuAffinity);
 
 extern void client_main(void *args);
 extern void ipset_main(void *args);

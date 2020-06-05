@@ -33,7 +33,7 @@ void usage(char *progname)
     fprintf(stderr,
         "USAGE:\n");
     fprintf(stderr,
-        "  %s [-h] [-p port] [-b bind_address]\n\n",
+        "  %s [-h] [-A] [-p port] [-b bind_address]\n\n",
         progname);
     fprintf(stderr,
         "Options:\n");
@@ -45,14 +45,21 @@ void usage(char *progname)
     fprintf(stderr,
         "  -b bind_addr Specify specific IP address to listen on. Can specify '*' wildcard. Default: %s\n\n",
         DEFAULT_BIND_ADDR_STR);
+    fprintf(stderr,
+        "  -A           Disable CPU-affinity binding. Default: binding enabled\n\n");
 }
 
 void parse_args(int argc, char *argv[], struct cli_args *args)
 {
     int c;
     opterr = 0;
-    while ((c = getopt(argc, argv, "hb:p:")) != EOF) {
+    while ((c = getopt(argc, argv, "hAb:p:")) != EOF) {
         switch (c) {
+            case 'A':  // Disable CPU affinity
+            {
+                args->enableCpuAffinity = 0;
+                break;
+            }
             case 'b':  // Set bind address
             {
                 if (strncmp(optarg, "*", 1) == 0) {
@@ -88,7 +95,8 @@ int main(int argc, char *argv[])
     struct thread_pair *threads[numCpus];
     struct cli_args cliArgs = {
         .port        = DEFAULT_PORT_NUM,
-        .bindAddrStr = DEFAULT_BIND_ADDR_STR
+        .bindAddrStr = DEFAULT_BIND_ADDR_STR,
+        .enableCpuAffinity = 1
     };
     parse_args(argc, argv, &cliArgs);
 
@@ -107,7 +115,7 @@ int main(int argc, char *argv[])
     for (int threadIndex = 0; threadIndex < numCpus; threadIndex++) {
         struct thread_pair *pair;
         pair = create_thread_pair(threadIndex, threadIndex, cliArgs.port,
-            &cliArgs.bindAddr);
+            &cliArgs.bindAddr, cliArgs.enableCpuAffinity);
         threads[threadIndex] = pair;
     }
 

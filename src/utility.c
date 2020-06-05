@@ -44,7 +44,9 @@ int custom_output_func(struct ipset_session *session,
 }
 
 struct thread_pair *create_thread_pair(
-    int number, int cpuAffinity, uint16_t port, struct in_addr *bindAddr)
+    int number, int cpuAffinity,
+    uint16_t port, struct in_addr *bindAddr,
+    uint16_t enableCpuAffinity)
 {
     struct ipset_thread_args *ipset_args = NULL;
     struct client_thread_args *client_args = NULL;
@@ -80,6 +82,7 @@ struct thread_pair *create_thread_pair(
     ipset_args->response_queue = tpair->response_queue;
     ipset_args->ipset_handle   = tpair->ipset_handle;
     ipset_args->pairNumber     = number;
+    ipset_args->enableCpuAffinity = enableCpuAffinity;
 
     client_args = (struct client_thread_args *)malloc(
         sizeof(struct client_thread_args));
@@ -92,6 +95,7 @@ struct thread_pair *create_thread_pair(
     client_args->pairNumber     = number;
     client_args->port           = port;
     client_args->bindAddr       = bindAddr;
+    client_args->enableCpuAffinity = enableCpuAffinity;
 
     int retval;
 

@@ -29,14 +29,22 @@ void client_main(void *args)
     };
 
     // Setup CPU affinity
-    cpu_set_t cpuMask;
-    CPU_ZERO(&cpuMask);
-    CPU_SET(threadArgs->pairNumber, &cpuMask);     
-    if (sched_setaffinity(0, sizeof(cpu_set_t), &cpuMask) < 0)
+    if (threadArgs->enableCpuAffinity)
     {
-        // This is non-fatal. Perhaps make it being fatal
-        // a configurable option?
-        syslog(LOG_ERR, "Failed setting affinity! %s\n", strerror(errno));
+        cpu_set_t cpuMask;
+        CPU_ZERO(&cpuMask);
+        CPU_SET(threadArgs->pairNumber, &cpuMask);     
+        if (sched_setaffinity(0, sizeof(cpu_set_t), &cpuMask) < 0)
+        {
+            // This is non-fatal. Perhaps make it being fatal
+            // a configurable option?
+            syslog(LOG_ERR, "Failed setting affinity! %s\n", strerror(errno));
+        } else {
+            syslog(LOG_INFO, "CPU affinity successfully bound to CPU #%02d",
+                threadArgs->pairNumber);
+        }
+    } else {
+        syslog(LOG_INFO, "CPU affinity binding has been disabled!");
     }
 
     set_thread_name("client", threadArgs->pairNumber);
@@ -63,7 +71,8 @@ void client_main(void *args)
         req.request_id++;
 
         if (resp) {
-            syslog(LOG_INFO, "client-%02d ] ID %08X : Free'd memory for response");
+            syslog(LOG_INFO, "client-%02d ] ID %08X : Free'd memory for response",
+                threadArgs->pairNumber, resp->request_id);
             free(resp);
         }
     }

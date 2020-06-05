@@ -16,6 +16,8 @@ Which isn't particularly efficient.
 
 %prep
 %setup -c
+mkdir -p $RPM_BUILD_ROOT
+
 
 %build
 cd src
@@ -24,10 +26,10 @@ make
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -m 755 -p $RPM_BUILD_ROOT/usr/sbin
-install -m 755 src/ctmortician $RPM_BUILD_ROOT/usr/sbin/
+install -m 755 src/arbiterd $RPM_BUILD_ROOT/usr/sbin/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
-/usr/sbin/ctmortician
+/usr/sbin/arbiterd

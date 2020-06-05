@@ -10,21 +10,34 @@
 
 #include "arbiterd.h"
 
+// "Main" function for the ipset-handling threads.
+// Receives a pointer to a queue to read requests from and another
+// queue to send responses on.
+// Thread's pair number is used to determine which CPU we should
+//   bind to, affinity wise.
 void ipset_main(void *args)
 {
     struct ipset_thread_args *threadArgs = (struct ipset_thread_args *)args;
     struct request *req;
     char ipsetCmdBuff[2048];
 
-    cpu_set_t cpuMask;
-
-    CPU_ZERO(&cpuMask);
-    CPU_SET(threadArgs->pairNumber, &cpuMask);     
-    
-    // This isn't considered fatal.
-    if (sched_setaffinity(0, sizeof(cpu_set_t), &cpuMask) < 0)
+    // Setup CPU affinity
+    if (threadArgs->enableCpuAffinity)
     {
-        syslog(LOG_ERR, "Failed setting affinity! %s\n", strerror(errno));
+        cpu_set_t cpuMask;
+        CPU_ZERO(&cpuMask);
+        CPU_SET(threadArgs->pairNumber, &cpuMask);     
+        
+        // This isn't considered fatal.
+        if (sched_setaffinity(0, sizeof(cpu_set_t), &cpuMask) < 0)
+        {
+            syslog(LOG_ERR, "Failed setting affinity! %s\n", strerror(errno));
+        } else {
+            syslog(LOG_INFO, "CPU affinity successfully bound to CPU #%02d",
+                threadArgs->pairNumber);
+        }
+    } else {
+        syslog(LOG_INFO, "CPU affinity binding has been disabled!");
     }
 
     set_thread_name("ipset", threadArgs->pairNumber);
@@ -82,7 +95,11 @@ void ipset_main(void *args)
         g_async_queue_push(threadArgs->response_queue, (gpointer)buffResp);
 
         free(setname);
-        if (req) { free(req); }
+        if (req) {
+            syslog(LOG_DEBUG, " ipset-%02d ] ID %08X: Free'd memory for request",
+                threadArgs->pairNumber, req->request_id);
+            free(req);
+        }
     }
     // if (buffResp) { free(buffResp); }
 
