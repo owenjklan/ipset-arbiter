@@ -2,6 +2,9 @@
 #define __ARBITERD_H__
 
 // #define _BSD_SOURCE  // enabled by default
+#include <string.h>
+#include <errno.h>
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -76,6 +79,7 @@ struct response {
     uint8_t padd;
     uint16_t response_size;
     uint32_t request_id;
+    char *response;
 };
 
 // utility.c

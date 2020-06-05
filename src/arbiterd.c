@@ -84,7 +84,7 @@ void parse_args(int argc, char *argv[], struct cli_args *args)
 
 int main(int argc, char *argv[])
 {
-    int numCpus = cpu_count() * 2;
+    int numCpus = cpu_count();
     struct thread_pair *threads[numCpus];
     struct cli_args cliArgs = {
         .port        = DEFAULT_PORT_NUM,
@@ -99,9 +99,11 @@ int main(int argc, char *argv[])
     openlog(PROG_NAME, LOG_NDELAY|LOG_PID, LOG_USER);
 
     ipset_load_types();
+    syslog(LOG_INFO, "ipset types loaded\n");
     syslog(LOG_INFO, "%d CPUs reported as available\n", numCpus);
 
     // Start threads
+
     for (int threadIndex = 0; threadIndex < numCpus; threadIndex++) {
         struct thread_pair *pair;
         pair = create_thread_pair(threadIndex, threadIndex, cliArgs.port,
@@ -109,6 +111,8 @@ int main(int argc, char *argv[])
         threads[threadIndex] = pair;
     }
 
+    syslog(LOG_INFO, "All thread pairs created. Main thread awaiting child threads.");
+    // Main thread awaiting on all child threads
     for (int threadIndex = 0; threadIndex < numCpus; threadIndex++)
     {
         struct thread_pair *pair = threads[threadIndex];

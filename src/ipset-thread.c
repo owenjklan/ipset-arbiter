@@ -3,6 +3,10 @@
 #include <unistd.h>
 #include <syslog.h>
 #include <pthread.h>
+#include <string.h>
+#include <errno.h>
+
+#include <glib.h>
 
 #include "arbiterd.h"
 
@@ -12,14 +16,25 @@ void ipset_main(void *args)
     struct request *req;
     char ipsetCmdBuff[2048];
 
-    set_thread_name("ipset", threadArgs->pairNumber);
+    cpu_set_t cpuMask;
 
+    CPU_ZERO(&cpuMask);
+    CPU_SET(threadArgs->pairNumber, &cpuMask);     
+    
+    // This isn't considered fatal.
+    if (sched_setaffinity(0, sizeof(cpu_set_t), &cpuMask) < 0)
+    {
+        syslog(LOG_ERR, "Failed setting affinity! %s\n", strerror(errno));
+    }
+
+    set_thread_name("ipset", threadArgs->pairNumber);
 
     struct response resp = {
         .response_type = 1,
         .padd = 0,
         .response_size = 128
     };
+    struct response *buffResp = NULL;
 
     while (1) {
         req = (struct request *)g_async_queue_pop(threadArgs->request_queue);
@@ -28,14 +43,20 @@ void ipset_main(void *args)
         char *requestVerb;
         memset(ipsetCmdBuff, 0x00, 2048);
 
-        printf(" ipset] Request 0x%08X received.\n");
+        // We need to send a dynamic pointer "across the queue", so that
+        // the reference can be free'd
+        buffResp = malloc(sizeof(struct response));
+        memcpy(buffResp, &resp, sizeof(struct response));
 
         if ((setname = malloc(req->setname_length + 1)) == NULL) {
-            fprintf(stderr, "Failed copying setname! Malloc fail\n");
+            syslog(LOG_ERR, "Failed copying setname! Malloc fail\n");
+            if (req) { free(req); }
             continue;
         }
         memset(setname, 0x00, req->setname_length + 1);
         memcpy(setname, req->setname, req->setname_length);
+        syslog(LOG_INFO, " ipset-%02d ] ID %08X: Request received. setname: %s\n",
+            threadArgs->pairNumber, req->request_id, setname);
 
         switch (req->request_type) {
             case REQ_TEST_SET:
@@ -58,11 +79,12 @@ void ipset_main(void *args)
                 syslog(LOG_INFO, "Unknown request code: 0x%02X\n", req->request_type);
         }
 
-        fprintf(stderr, " ipset] Request using setname: %s\n", setname);
-        g_async_queue_push(threadArgs->response_queue, (gpointer)&resp);
+        g_async_queue_push(threadArgs->response_queue, (gpointer)buffResp);
 
         free(setname);
+        if (req) { free(req); }
     }
+    // if (buffResp) { free(buffResp); }
 
     return;
 }
