@@ -14,8 +14,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 
 #include "arbiterd.h"
+
+static int setup_socket(uint16_t port, struct in_addr *bindAddr);
 
 void client_main(void *args)
 {
@@ -27,6 +30,8 @@ void client_main(void *args)
         .request_id = 0xDEADBEEF,
         .setname = "testset"
     };
+
+    // openlog(PROG_NAME, LOG_NDELAY|LOG_PID, LOG_USER);
 
     // Setup CPU affinity
     if (threadArgs->enableCpuAffinity)
@@ -53,7 +58,8 @@ void client_main(void *args)
     req.request_id = random();
 
     // Setup server socket
-    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    int sock = setup_socket(threadArgs->port, threadArgs->bindAddr);
+
     struct request *buffReq = NULL;
     while (1) {
         // We need to send a dynamic pointer "across the queue", so that
@@ -77,6 +83,46 @@ void client_main(void *args)
         }
     }
 
+    close(sock);
+    syslog(LOG_INFO, "client-%02d ] closed listening socket",
+                threadArgs->pairNumber);
     free(buffReq);
     return;
+}
+
+static int setup_socket(uint16_t port, struct in_addr *bindAddr)
+{
+    int sock = -1;
+
+    if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
+        syslog(LOG_INFO, "Failed setting up listening socket! %s",
+            strerror(errno));
+        exit(1);
+    }
+
+    int sockopt_val = 1;
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+                    &sockopt_val, sizeof(sockopt_val)) < 0) {
+        syslog(LOG_ERR, "Failed configuring port for listening socket! %s",
+            strerror(errno));
+        close(sock);
+        exit(1);
+    }
+
+    struct sockaddr_in sockAddr = {
+        .sin_family = AF_INET,
+        .sin_port = htons(port)
+    };
+    memcpy(&sockAddr.sin_addr.s_addr, bindAddr, sizeof(struct in_addr));
+
+    if (bind(sock, &sockAddr, sizeof(struct sockaddr_in)) < 0) {
+        syslog(LOG_ERR, "Failed binding listening socket! %s",
+            strerror(errno));
+        close(sock);
+        exit(1);
+    }
+
+    syslog(LOG_INFO, "Successfully bound listening socket. Waiting for requests...");
+
+    return sock;
 }

@@ -28,8 +28,12 @@ rm -rf $RPM_BUILD_ROOT
 mkdir -m 755 -p $RPM_BUILD_ROOT/usr/sbin
 install -m 755 src/arbiterd $RPM_BUILD_ROOT/usr/sbin/
 
+mkdir -m 755 -p $RPM_BUILD_ROOT/etc/syslog-ng/conf.d
+install -m 755 syslog-ng/arbiterd.conf $RPM_BUILD_ROOT/etc/syslog-ng/conf.d/
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 /usr/sbin/arbiterd
+/etc/syslog-ng/conf.d/arbiterd.conf

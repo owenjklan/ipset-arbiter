@@ -21,6 +21,8 @@ void ipset_main(void *args)
     struct request *req;
     char ipsetCmdBuff[2048];
 
+    // openlog(PROG_NAME, LOG_NDELAY|LOG_PID, LOG_USER);
+
     // Setup CPU affinity
     if (threadArgs->enableCpuAffinity)
     {
