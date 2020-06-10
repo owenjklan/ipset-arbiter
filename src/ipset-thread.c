@@ -96,10 +96,10 @@ void ipset_main(void *args)
 
         g_async_queue_push(threadArgs->response_queue, (gpointer)buffResp);
 
-        free(setname);
         if (req) {
-            syslog(LOG_DEBUG, " ipset-%02d ] ID %08X: Free'd memory for request",
-                threadArgs->pairNumber, req->request_id);
+            syslog(LOG_DEBUG, " ipset-%02d ] ID %08X: Free'd memory for request on %s",
+                threadArgs->pairNumber, req->request_id, setname);
+            free(setname);
             free(req);
         }
     }
