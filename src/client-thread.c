@@ -61,7 +61,7 @@ void client_main(void *args)
     int sock = setup_socket(threadArgs->port, threadArgs->bindAddr);
 
     struct request *buffReq = NULL;
-    while (1) {
+    while (arbiterdRunning) {
         // We need to send a dynamic pointer "across the queue", so that
         // the reference can be free'd
         buffReq = malloc(sizeof(struct request));
@@ -86,7 +86,9 @@ void client_main(void *args)
     close(sock);
     syslog(LOG_INFO, "client-%02d ] closed listening socket",
                 threadArgs->pairNumber);
-    free(buffReq);
+    if (buffReq) {
+        free(buffReq);
+    }
     return;
 }
 

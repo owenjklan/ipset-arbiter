@@ -51,7 +51,7 @@ void ipset_main(void *args)
     };
     struct response *buffResp = NULL;
 
-    while (1) {
+    while (arbiterdRunning) {
         req = (struct request *)g_async_queue_pop(threadArgs->request_queue);
         resp.request_id = req->request_id;
         char *setname;
@@ -99,11 +99,13 @@ void ipset_main(void *args)
         if (req) {
             syslog(LOG_DEBUG, " ipset-%02d ] ID %08X: Free'd memory for request on %s",
                 threadArgs->pairNumber, req->request_id, setname);
-            free(setname);
             free(req);
         }
+        if (setname) {
+            free(setname);
+        }
     }
-    // if (buffResp) { free(buffResp); }
+    if (buffResp) { free(buffResp); }
 
     return;
 }

@@ -16,6 +16,8 @@
 #include <libipset/types.h>
 #include <libipset/linux_ip_set.h>
 
+#include <syslog.h>
+
 #include <glib.h>
 
 #include <pthread.h>
@@ -24,11 +26,14 @@
 
 #define DEFAULT_PORT_NUM	     65432
 #define DEFAULT_BIND_ADDR_STR    "127.0.0.1"
+#define DEFAULT_LOG_LEVEL        LOG_INFO
 
 #define REQ_TEST_SET    0
 #define REQ_ADD_SET     1
 #define REQ_LIST_SET    2
 
+
+extern volatile uint32_t arbiterdRunning;
 
 /* Data structure definitions */
 
@@ -38,6 +43,7 @@ struct cli_args {
 	char           *bindAddrStr;
     uint16_t       enableCpuAffinity;
 	struct in_addr bindAddr;
+    int            logLevel;
 };
 
 // Thread pair information
